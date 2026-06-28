@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0e7c66">
+<title>Mes Finances</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{
+  --green:#0e7c66; --green-d:#0a5c4c; --green-l:#e6f4f0;
+  --bg:#0d1117; --card:#161b22; --card2:#1c232d; --line:#2a323d;
+  --txt:#e9eef5; --muted:#8b97a7; --accent:#3ba88f;
+  --income:#2dd4a7; --expense:#f4736b; --amber:#f0b429; --red:#ef4444;
+  --pur:#8b7cf6; --blue:#4d9ef6;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;overscroll-behavior-y:none}
+body{padding-bottom:78px}
+header{position:sticky;top:0;z-index:20;
+  background:linear-gradient(135deg,var(--green),var(--green-d));
+  padding:calc(env(safe-area-inset-top) + 14px) 16px 14px;
+  box-shadow:0 2px 14px rgba(0,0,0,.45)}
+header h1{margin:0;font-size:17px;font-weight:800;letter-spacing:.3px}
+header .sub{font-size:12px;opacity:.85;margin-top:2px}
+.wrap{padding:14px;max-width:680px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:13px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.muted{color:var(--muted);font-size:13px}
+.pill{background:var(--green-l);color:var(--green-d);font-weight:800;font-size:11px;padding:4px 9px;border-radius:999px}
+.btn{background:var(--green);color:#fff;border:none;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;cursor:pointer;width:100%}
+.btn.ghost{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+.btn.sm{padding:8px 11px;font-size:13px;border-radius:10px;width:auto}
+.btn:active{transform:scale(.98)}
+.seg{display:flex;gap:6px;background:var(--card2);padding:5px;border-radius:13px;margin-bottom:12px}
+.seg button{flex:1;background:none;border:none;color:var(--muted);font-weight:700;font-size:13px;padding:10px;border-radius:9px;cursor:pointer}
+.seg button.on{background:var(--green);color:#fff}
+.big{font-size:32px;font-weight:800;letter-spacing:-.5px}
+.income{color:var(--income)} .expense{color:var(--expense)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.stat{background:var(--card2);border-radius:13px;padding:13px}
+.stat .v{font-size:21px;font-weight:800} .stat .l{font-size:11px;color:var(--muted);margin-top:3px}
+.field{margin-bottom:11px}
+.field label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
+.field input,.field select{width:100%;background:#0d1014;border:1px solid var(--line);color:var(--txt);
+  border-radius:11px;padding:12px;font-size:15px;font-weight:600}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent)}
+.catrow{display:flex;gap:7px;overflow-x:auto;padding:3px 0;scrollbar-width:none}
+.catrow::-webkit-scrollbar{display:none}
+.catchip{flex:0 0 auto;background:var(--card2);border:1px solid var(--line);color:var(--muted);
+  border-radius:11px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.catchip.on{background:var(--green);color:#fff;border-color:var(--green)}
+.tx{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.tx:last-child{border-bottom:none}
+.tx .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.tx .info{flex:1;min-width:0}
+.tx .t{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx .d{font-size:11px;color:var(--muted)}
+.tx .amt{font-weight:800;font-size:15px;white-space:nowrap}
+.progwrap{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;margin-top:8px}
+.progbar{height:100%;border-radius:999px;transition:width .4s}
+.donut{display:block;margin:0 auto}
+.legend{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.legend .li{display:flex;align-items:center;gap:8px;font-size:13px}
+.dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.bars{display:flex;align-items:flex-end;gap:6px;height:110px;margin-top:12px}
+.bar{flex:1;border-radius:5px 5px 0 0;min-height:3px;position:relative;background:var(--accent)}
+.barlbl{font-size:10px;color:var(--muted);text-align:center;margin-top:5px}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--card);border-top:1px solid var(--line);
+  display:flex;padding:6px 4px calc(env(safe-area-inset-bottom) + 6px)}
+.nav button{flex:1;background:none;border:none;color:var(--muted);font-size:10px;font-weight:700;
+  padding:5px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav button.on{color:var(--green)} .nav svg{width:21px;height:21px}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--green);color:#04210f;
+  padding:11px 18px;border-radius:12px;font-weight:800;font-size:13px;z-index:50;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 6px 22px rgba(0,0,0,.45)}
+.toast.show{opacity:1} .toast.warn{background:var(--amber)} .toast.err{background:var(--expense);color:#fff}
+.alert{background:rgba(240,180,41,.13);border:1px solid var(--amber);color:#f0b429;border-radius:11px;padding:10px 12px;font-size:12.5px;font-weight:600;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start}
+.alert.danger{background:rgba(244,115,107,.13);border-color:var(--expense);color:var(--expense)}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:none;align-items:flex-end}
+.modal.show{display:flex}
+.sheet{background:var(--card);width:100%;border-radius:20px 20px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom) + 18px);max-height:88vh;overflow-y:auto;border-top:1px solid var(--line)}
+.sheet h3{margin:0 0 14px;font-size:17px}
+.adviceblk{background:var(--green-l);color:var(--green-d);border-radius:12px;padding:13px;font-size:13px;line-height:1.55;margin-bottom:10px}
+.adviceblk b{color:var(--green-d)}
+.tag{display:inline-block;font-size:10px;font-weight:800;padding:3px 8px;border-radius:7px;background:var(--card2);color:var(--muted)}
+.del{color:var(--expense);background:none;border:none;font-size:13px;cursor:pointer;font-weight:700;padding:6px}
+hr.sep{border:none;border-top:1px solid var(--line);margin:13px 0}
+.empty{text-align:center;color:var(--muted);padding:26px 10px;font-size:13px}
+.fab{position:fixed;right:16px;bottom:86px;z-index:25;width:54px;height:54px;border-radius:50%;
+  background:var(--green);color:#fff;border:none;font-size:28px;font-weight:300;box-shadow:0 6px 20px rgba(14,124,102,.5);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fab:active{transform:scale(.94)}
+.toprow{display:flex;gap:8px;margin-bottom:12px}
+.toprow .seg{flex:1;margin:0}
+.riskbar{display:flex;height:9px;border-radius:999px;overflow:hidden;margin:8px 0}
+.riskbar div{height:100%}
+</style>
+</head>
+<body>
+<header>
+  <div class="row between">
+    <div><h1 id="hdrTitle">Mes Finances</h1><div class="sub" id="hdrSub">Tableau de bord</div></div>
+    <div class="pill" id="hdrMonth">—</div>
+  </div>
+</header>
+
+<div id="view"></div>
+<button class="fab" id="fab" onclick="openTx()">+</button>
+
+<div class="nav">
+  <button data-tab="dash" class="on" onclick="go('dash')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bord</button>
+  <button data-tab="tx" onclick="go('tx')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h12"/></svg>Trans.</button>
+  <button data-tab="budget" onclick="go('budget')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Budgets</button>
+  <button data-tab="save" onclick="go('save')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 7H22l-6 4.5 2.3 7L12 16l-6.3 4.5L8 13.5 2 9h7.5z"/></svg>Épargne</button>
+  <button data-tab="invest" onclick="go('invest')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M21 7v5M21 7h-5"/></svg>Investir</button>
+</div>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
